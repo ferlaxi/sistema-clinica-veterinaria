@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${mascota.id == null ? 'Nueva Mascota' : 'Editar Mascota'})}"></head>
+<body>
+    
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+
+    <div class="container mt-4 mb-5">
+        <h2 class="page-title text-center mx-auto d-block fw-bold text-dark" th:text="${mascota.id == null ? 'Registrar Mascota' : 'Modificar Mascota'}">Formulario</h2>
+
+        <div class="row"><div class="col-lg-8 mx-auto"><div class="card p-5 border-0 shadow-sm mt-4 bg-light">
+            <form th:action="@{/mascotas/guardar}" th:object="${mascota}" method="post">
+                <input type="hidden" th:field="*{id}" />
+
+                <div class="row g-3">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Nombre</label>
+                        <input type="text" class="form-control bg-white border-0 shadow-sm" th:field="*{nombre}" th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback fw-bold" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Especie</label>
+                        <select class="form-select bg-white border-0 shadow-sm" th:field="*{especie}" th:classappend="${#fields.hasErrors('especie')} ? 'is-invalid' : ''">
+                            <option value="">Seleccione especie</option>
+                            <option value="PERRO">Perro</option>
+                            <option value="GATO">Gato</option>
+                            <option value="AVE">Ave</option>
+                            <option value="OTRO">Otro</option>
+                        </select>
+                        <div class="invalid-feedback fw-bold" th:if="${#fields.hasErrors('especie')}" th:errors="*{especie}"></div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Raza</label>
+                        <input type="text" class="form-control bg-white border-0 shadow-sm" th:field="*{raza}" th:classappend="${#fields.hasErrors('raza')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback fw-bold" th:if="${#fields.hasErrors('raza')}" th:errors="*{raza}"></div>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label fw-bold">Edad (Años)</label>
+                        <input type="number" class="form-control bg-white border-0 shadow-sm" th:field="*{edad}" min="0">
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label fw-bold">Sexo</label>
+                        <select class="form-select bg-white border-0 shadow-sm" th:field="*{sexo}">
+                            <option value="MACHO">Macho</option>
+                            <option value="HEMBRA">Hembra</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 mb-3">
+                        <label class="form-label fw-bold">Dueño de la mascota</label>
+                        <select class="form-select bg-white border-0 shadow-sm" th:field="*{duenioId}" th:classappend="${#fields.hasErrors('duenioId')} ? 'is-invalid' : ''">
+                            <option value="">Seleccione al dueño...</option>
+                            <option th:each="d : ${duenios}" th:value="${d.id}" th:text="${d.nombre + ' ' + d.apellido + ' (DNI: ' + d.dni + ')'}"></option>
+                        </select>
+                        <div class="invalid-feedback fw-bold" th:if="${#fields.hasErrors('duenioId')}" th:errors="*{duenioId}"></div>
+                    </div>
+
+                    <div class="col-12 mb-3">
+                        <label class="form-label fw-bold">Observaciones médicas</label>
+                        <textarea class="form-control bg-white border-0 shadow-sm" th:field="*{observaciones}" rows="3" placeholder="Alergias, intervenciones..."></textarea>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4 border-top pt-4">
+                    <a th:href="@{/mascotas}" class="btn btn-light shadow-sm fw-bold px-4 rounded-pill">Cancelar</a>
+                    <button type="submit" class="btn btn-primary text-white shadow-sm fw-bold px-4 rounded-pill" th:text="${mascota.id == null ? 'Registrar' : 'Guardar Cambios'}">Guardar</button>
+                </div>
+            </form>
+        </div></div></div>
+        </div>
+    </div>
+    </body>
+</html>

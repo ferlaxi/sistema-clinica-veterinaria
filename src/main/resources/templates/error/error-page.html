@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Error ' + ${errorStatus != null ? errorStatus : 'Detectado'})}"></head>
+<body>
+    
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+
+        <div class="text-center p-5">
+            
+            <i th:if="${errorStatus != null && errorStatus.toString().startsWith('4')}" class="bi bi-compass text-muted mb-4 d-block display-1"></i>
+            <i th:if="${errorStatus != null && errorStatus.toString().startsWith('5')}" class="bi bi-exclamation-octagon-fill text-danger mb-4 d-block display-1"></i>
+            <i th:if="${errorStatus == null}" class="bi bi-x-circle-fill text-muted mb-4 d-block display-1"></i>
+
+            <h1 class="fw-bold text-dark mb-2">
+                <span th:text="${errorStatus != null ? errorStatus : 'Error'}">404</span>
+            </h1>
+            
+            <h3 class="fw-bold text-dark mb-3" th:text="${errorTitle != null ? errorTitle : 'Algo salió mal'}">Página no encontrada</h3>
+            <p class="text-muted fs-5 mb-4 mx-auto" th:text="${errorMessage != null ? errorMessage : 'La solicitud no pudo ser procesada.'}"></p>
+            
+            <div th:if="${errorDetail != null}" class="bg-light p-3 rounded-4 mb-4 text-start mx-auto shadow-sm border">
+                <small class="text-muted fw-bold d-block mb-1"><i class="bi bi-bug me-1"></i>Detalle técnico:</small>
+                <code class="text-danger" th:text="${errorDetail}">Detalle</code>
+            </div>
+
+            <a th:href="@{/}" class="btn btn-primary text-white fw-bold shadow-sm rounded-pill px-5 py-3 mt-2">
+                <i class="bi bi-house-door-fill me-2"></i>Volver al Inicio
+            </a>
+        </div>
+    </body>
+</html>

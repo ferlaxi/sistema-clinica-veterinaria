@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Lista de Dueños')}"></head>
+<body>
+    
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+
+    <div class="container mt-4 mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold text-dark mb-0"><i class="bi bi-person-lines-fill me-2 text-primary"></i>Gestionar Clientes</h2>
+            
+            <a th:href="@{/duenios/nuevo}" class="btn btn-primary fw-bold d-flex align-items-center shadow-sm" sec:authorize="hasAnyRole('ADMIN', 'VETERINARIO', 'CLIENTE')">
+               <i class="bi bi-plus-lg me-2"></i> Nuevo Dueño
+            </a>
+        </div>
+
+        <div class="mb-4" sec:authorize="hasAnyRole('ADMIN', 'VETERINARIO')">
+            <form method="get" th:action="@{/duenios}">
+                <div class="input-group input-group-lg shadow-sm">
+                    <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="dni" class="form-control" placeholder="Buscar cliente rápidamente por DNI..." th:value="${busquedaDni}" />
+                    <button type="submit" class="btn btn-dark fw-bold px-4">Buscar</button>
+                    <a th:if="${busquedaDni != null}" th:href="@{/duenios}" class="btn btn-outline-danger fw-bold" title="Limpiar Búsqueda">Limpiar</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="card p-3 border-0 shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th class="text-muted pb-3">DNI</th>
+                            <th class="text-muted pb-3">Nombre y Apellido</th>
+                            <th class="text-muted pb-3">Teléfono</th>
+                            <th class="text-muted pb-3">Dirección</th>
+                            <th class="text-muted pb-3">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="duenio : ${duenios}">
+                            <td th:text="${duenio.dni}" class="fw-bold text-primary">123456</td>
+                            <td class="fw-bold text-dark">
+                                <i class="bi bi-person-circle text-muted me-2 fs-5"></i>
+                                <span th:text="${duenio.nombre + ' ' + duenio.apellido}">Juan Perez</span>
+                            </td>
+                            <td th:text="${duenio.telefono}">555</td>
+                            <td class="text-muted"><i class="bi bi-geo-alt-fill me-1"></i><span th:text="${duenio.direccion != null and duenio.direccion != '' ? duenio.direccion : 'No especificada'}">Direccion</span></td>
+                            <td>
+                                                                <button th:if="${duenio.mascotas != null and !duenio.mascotas.isEmpty()}" 
+                                        type="button" 
+                                        class="btn btn-sm btn-info text-dark rounded-circle me-1 border shadow-sm" 
+                                        title="Ver Mascotas"
+                                        data-bs-toggle="modal" 
+                                        th:data-bs-target="'#modalMascotas' + ${duenio.id}">
+                                    <i class="bi bi-eye-fill"></i>
+                                </button>
+                                <a th:href="@{/duenios/{id}/editar(id=${duenio.id})}"  class="btn btn-sm btn-light text-primary rounded-circle me-1 border shadow-sm" title="Editar">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </a>
+                                
+                                <form th:action="@{/duenios/{id}/eliminar(id=${duenio.id})}" method="post" class="d-inline" sec:authorize="hasRole('ADMIN')">
+                                    <button type="submit" class="btn btn-sm btn-light text-danger rounded-circle border shadow-sm" onclick="return confirm('¿Seguro que deseas eliminar permanentemente este dueño?');" title="Eliminar">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(duenios)}">
+                            <td colspan="5" class="text-center text-muted p-5">
+                                <i class="bi bi-search fs-1 opacity-25"></i>
+                                <p class="mt-2 fw-bold">No se encontraron clientes.</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+    <div th:each="duenio : ${duenios}" th:if="${duenio.mascotas != null and !duenio.mascotas.isEmpty()}">
+        <div class="modal fade" th:id="'modalMascotas' + ${duenio.id}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-light border-0">
+                        <h5 class="modal-title fw-bold">
+                            <i class="bi bi-bug-fill text-info me-2"></i>Mascotas de <span th:text="${duenio.nombre}"></span>
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4 bg-white">
+                        <div class="accordion shadow-sm" th:id="'acc' + ${duenio.id}">
+                            <div class="accordion-item border-0 mb-2 rounded border" th:each="mascota, stat : ${duenio.mascotas}">
+                                <h2 class="accordion-header" th:id="'heading' + ${mascota.id}">
+                                    <button class="accordion-button collapsed fw-bold rounded bg-light" type="button" data-bs-toggle="collapse" 
+                                            th:data-bs-target="'#col' + ${mascota.id}">
+                                        <i class="bi bi-heart-pulse-fill text-danger me-2"></i> <span th:text="${mascota.nombre} + ' (' + ${mascota.especie} + ')'" class="text-dark"></span>
+                                    </button>
+                                </h2>
+                                <div th:id="'col' + ${mascota.id}" class="accordion-collapse collapse" th:data-bs-parent="'#acc' + ${duenio.id}">
+                                    <div class="accordion-body">
+                                        
+                                        <div class="d-flex mb-3 p-3 bg-light rounded text-muted">
+                                            <div class="me-4"><i class="bi bi-hash me-1"></i><strong class="text-dark">Raza:</strong> <span th:text="${mascota.raza}"></span></div>
+                                            <div><i class="bi bi-calendar3 me-1"></i><strong class="text-dark">Edad:</strong> <span th:text="${mascota.edad}"></span> años</div>
+                                        </div>
+                                        
+                                        <h6 class="fw-bold text-dark border-bottom pb-2 mb-3"><i class="bi bi-file-medical-fill text-success me-2"></i>Historial de Turnos</h6>
+                                        
+                                        <ul class="list-group list-group-flush" th:if="${mascota.turnos != null and !mascota.turnos.isEmpty()}">
+                                            <li class="list-group-item d-flex justify-content-between align-items-start border-0 border-bottom px-0 pb-3 mb-2" th:each="turno : ${mascota.turnos}">
+                                                <div class="ms-2 me-auto">
+                                                    <div class="fw-bold text-primary mb-1" th:text="${turno.motivo}"></div>
+                                                    <div class="text-muted small mb-1"><i class="bi bi-clock me-1"></i><span th:text="${#temporals.format(turno.fechaHora, 'dd/MM/yyyy HH:mm')}"></span></div>
+                                                    <div class="text-secondary small mt-2 bg-light p-2 rounded border" th:text="${turno.diagnostico}" th:if="${turno.diagnostico}"></div>
+                                                </div>
+                                                <span class="badge rounded-pill fw-bold" 
+                                                      th:classappend="${turno.estado.name() == 'SOLICITADO' ? 'text-info bg-info-subtle' : turno.estado.name() == 'CONFIRMADO' ? 'text-primary bg-primary-subtle' : turno.estado.name() == 'FINALIZADO' ? 'text-success bg-success-subtle' : 'text-danger bg-danger-subtle'}" 
+                                                      th:text="${turno.estado}"></span>
+                                            </li>
+                                        </ul>
+                                        <div class="alert alert-light text-muted small text-center rounded border-0 border-start border-4 border-warning shadow-sm" th:if="${mascota.turnos == null or mascota.turnos.isEmpty()}">
+                                            <i class="bi bi-calendar-x me-1"></i> No registra turnos asociados a su expediente.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</body>
+
+</html>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

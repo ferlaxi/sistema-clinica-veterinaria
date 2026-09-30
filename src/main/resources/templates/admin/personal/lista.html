@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Gestión de Personal')}"></head>
+<body>
+    
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+
+    <div class="container mt-4 mb-5">
+        <h2 class="page-title"><i class="bi bi-shield-lock-fill text-danger me-2"></i>Panel de Administración: Usuarios</h2>
+        
+        <div class="d-flex justify-content-end mb-3">
+            <a th:href="@{/admin/personal/nuevo}" class="btn btn-danger text-white fw-bold">
+                <i class="bi bi-person-plus-fill me-1"></i> Alta de Personal
+            </a>
+        </div>
+
+        <div class="card p-3 shadow-sm border-danger border-top border-3">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle text-center">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre de Usuario</th>
+                            <th>Nivel de Acceso</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="u : ${usuarios}">
+                            <td class="fw-bold text-muted" th:text="${u.id}">1</td>
+                            <td th:text="${u.username}">admin</td>
+                            <td>
+                                
+                                <span class="badge" 
+                                      th:classappend="${u.rol.name() == 'ROLE_ADMIN' ? 'bg-danger' : 
+                                                       u.rol.name() == 'ROLE_VETERINARIO' ? 'bg-primary' : 'bg-secondary'}"
+                                      th:text="${u.rol.name() == 'ROLE_ADMIN' ? 'ADMINISTRADOR' : 
+                                               u.rol.name() == 'ROLE_VETERINARIO' ? 'VETERINARIO' : 'CLIENTE'}">
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-success" th:if="${u.activo}"><i class="bi bi-check-circle me-1"></i>Activo</span>
+                                <span class="badge bg-danger" th:unless="${u.activo}"><i class="bi bi-x-circle me-1"></i>Inactivo</span>
+                            </td>
+                            <td>
+                                <a th:href="@{/admin/personal/{id}/editar(id=${u.id})}" class="btn btn-sm btn-outline-primary" title="Editar">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                
+                                <form th:action="@{/admin/personal/{id}/eliminar(id=${u.id})}" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                            th:disabled="${u.username == 'admin'}" 
+                                            onclick="return confirm('ATENCIÓN: ¿Seguro que deseas eliminar permanentemente a este usuario y todos sus datos asociados?');" 
+                                            title="Eliminar Cuenta">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(usuarios)}">
+                            <td colspan="5" class="text-center text-muted p-4">No hay cuentas registradas.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+</div>
+</div>
+</body>
+</html>

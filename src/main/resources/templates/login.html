@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Iniciar Sesión')}"></head>
+<body class="bg-light">
+
+    <div class="container d-flex justify-content-center align-items-center vh-100">
+        <div class="card p-4 shadow-sm">
+            <div class="text-center mb-4">
+                <h2>🐾 Ingresar</h2>
+                <p class="text-muted">Clínica Veterinaria</p>
+            </div>
+
+            <div th:if="${param.error}" class="alert alert-danger text-center">
+                Usuario o contraseña incorrectos.
+            </div>
+            <div th:if="${param.logout}" class="alert alert-success text-center">
+                Has cerrado sesión exitosamente.
+            </div>
+
+            <form th:action="@{/login}" method="post">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Usuario</label>
+                    <input type="text" class="form-control" id="username" name="username" required autofocus>
+                </div>
+                <div class="mb-4">
+                    <label for="password" class="form-label">Contraseña</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Iniciar Sesión</button>
+            </form>
+        </div>
+    </div>
+
+    </body>
+</html>

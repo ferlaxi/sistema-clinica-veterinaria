@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Lista de Mascotas')}"></head>
+<body>
+    
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+
+    <div class="container mt-4 mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold text-dark"><i class="bi bi-heart-pulse-fill me-2 text-danger"></i>Gestionar Mascotas</h2>
+            
+            <a th:href="@{/mascotas/nueva}" class="btn btn-primary fw-bold d-flex align-items-center shadow-sm" sec:authorize="hasAnyRole('ADMIN', 'VETERINARIO', 'CLIENTE')">
+                <i class="bi bi-plus-lg me-2"></i> Nueva Mascota
+            </a>
+        </div>
+
+        <div class="card p-3 border-0 shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle text-center">
+                    <thead>
+                        <tr>
+                            <th class="text-muted pb-3">Nombre</th>
+                            <th class="text-muted pb-3">Especie</th>
+                            <th class="text-muted pb-3">Raza</th>
+                            <th class="text-muted pb-3">Edad</th>
+                            <th class="text-muted pb-3">Dueño</th>
+                            <th class="text-muted pb-3">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="mascota : ${mascotas}">
+                            <td class="fw-bold text-dark" th:text="${mascota.nombre}">Rex</td>
+                            <td>
+                                <span class="badge text-dark" th:text="${mascota.especie}">PERRO</span>
+                            </td>
+                            <td th:text="${mascota.raza}">Golden</td>
+                            <td th:text="${mascota.edad}">3</td>
+                            <td><i class="bi bi-person me-1 text-muted"></i><span th:text="${mascota.nombreDuenio}">Juan Perez</span></td>
+                            <td>
+                                <a th:href="@{/mascotas/{id}/editar(id=${mascota.id})}" class="btn btn-sm btn-light text-primary rounded-circle me-1 border shadow-sm" title="Editar">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </a>
+                                
+                                <form th:action="@{/mascotas/{id}/eliminar(id=${mascota.id})}" method="post" class="d-inline" sec:authorize="hasAnyRole('ADMIN', 'VETERINARIO')">
+                                    <button type="submit" class="btn btn-sm btn-light text-danger rounded-circle border shadow-sm" onclick="return confirm('¿Seguro?');" title="Eliminar">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(mascotas)}">
+                            <td colspan="6" class="text-center text-muted p-5">
+                                <i class="bi bi-heptagon fs-1 opacity-25"></i>
+                                <p class="mt-2 fw-bold">No hay mascotas.</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${usuario.id == null ? 'Alta de Personal Médico/Admin' : 'Editar Personal Médico/Admin'})}"></head>
+<body>
+    
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+
+    <div class="container mt-4 mb-5">
+        <h2 class="page-title text-center mx-auto d-block text-danger" th:text="${usuario.id == null ? 'Alta de Cuenta Interna' : 'Modificación de Cuenta'}">Alta de Cuenta</h2>
+
+        <div class="card p-4 shadow-sm mx-auto mt-4 border-danger border-top border-3">
+            <form th:action="@{/admin/personal/guardar}" th:object="${usuario}" method="post">
+                <input type="hidden" th:field="*{id}" />
+
+                <div class="alert alert-warning text-center" role="alert" th:if="${usuario.id == null}">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                    Esta pantalla reserva cuentas críticas. Manejar con cuidado.
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Nombre de Usuario (Login)</label>
+                    
+                    <input type="text" class="form-control" th:field="*{username}" required placeholder="Ej: jsmith_vet" th:readonly="${usuario.username == 'admin'}">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">
+                        Contraseña Segura 
+                        <span class="fw-normal text-muted fst-italic" th:if="${usuario.id != null}">(Dejar en blanco para conservar la actual)</span>
+                    </label>
+                    <input type="password" class="form-control" th:field="*{password}" th:required="${usuario.id == null}">
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Nivel de Privilegios</label>
+
+                    <select class="form-select" th:field="*{rol}" required th:disabled="${usuario.username == 'admin'}">
+                        <option value="ROLE_VETERINARIO">Doctor / Veterinario</option>
+                        <option value="ROLE_ADMIN">Administrador de Sistema (Root)</option>
+                    </select>
+                    
+                    <input type="hidden" th:if="${usuario.username == 'admin'}" name="rol" value="ROLE_ADMIN" />
+                </div>
+
+                <div class="mb-4 form-check form-switch" th:if="${usuario.id != null}">
+                    <input class="form-check-input" type="checkbox" role="switch" th:field="*{activo}" id="activoSwitch" th:disabled="${usuario.username == 'admin'}">
+                    <label class="form-check-label fw-bold text-secondary" for="activoSwitch">Cuenta Activa (Habilita el inicio de sesión)</label>
+                    
+                    <input type="hidden" th:if="${usuario.username == 'admin'}" name="activo" value="true" />
+                </div>
+                
+                <input type="hidden" th:if="${usuario.id == null}" th:field="*{activo}" value="true" />
+
+                <div class="d-flex justify-content-between pt-3 border-top mt-4">
+                    <a th:href="@{/admin/personal}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Cancelar</a>
+                    <button type="submit" class="btn btn-danger"><i class="bi bi-shield-lock-fill me-1"></i><span th:text="${usuario.id == null ? 'Crear Cuenta' : 'Guardar Cambios'}">Guardar</span></button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </body>
+</html>

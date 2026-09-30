@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Inicio - Veterinaria')}"></head>
+<body>
+    
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+
+    <div class="container text-center mt-5">
+        <h1 class="display-4 fw-bold text-dark mb-3"><i class="bi bi-hospital text-success me-2"></i>Panel de Control</h1>
+        <p class="lead text-muted mb-5">Administra los clientes, pacientes y agendas médicas desde un solo lugar.</p>
+        
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-4">
+                <div class="card p-4 h-100 text-center">
+                    <h3 class="fw-bold display-6"><i class="bi bi-people-fill text-primary display-3 d-block mb-3"></i> Dueños</h3>
+                    <p class="text-muted">Gestiona el padrón de clientes y su información de contacto.</p>
+                    <a th:href="@{/duenios}" class="btn btn-primary btn-dashboard mt-auto">Administrar Dueños</a>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card p-4 h-100 text-center">
+                    <h3 class="fw-bold display-6"><i class="bi bi-bug-fill text-warning display-3 d-block mb-3"></i> Mascotas</h3>
+                    <p class="text-muted">Historial genético, razas y registros de pacientes.</p>
+                    <a th:href="@{/mascotas}" class="btn btn-warning text-dark btn-dashboard mt-auto">Administrar Mascotas</a>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card p-4 h-100 text-center">
+                    <h3 class="fw-bold display-6"><i class="bi bi-calendar-week-fill text-info display-3 d-block mb-3"></i> Turnos</h3>
+                    <p class="text-muted">Agenda de visitas médicas, estados y diagnósticos.</p>
+                    <a th:href="@{/turnos}" class="btn btn-info text-dark btn-dashboard mt-auto">Agenda Médica</a>
+                </div>
+            </div>
+
+            <div class="col-md-4" sec:authorize="hasRole('ADMIN')">
+                <div class="card p-4 h-100 text-center border-danger border-2">
+                    <h3 class="fw-bold text-danger display-6"><i class="bi bi-shield-lock-fill text-danger display-3 d-block mb-3"></i> Seguridad</h3>
+                    <p class="text-muted">Gestión de cuentas internas, doctores y privilegios.</p>
+                    <a th:href="@{/admin/personal}" class="btn btn-outline-danger fw-bold btn-dashboard mt-auto">Control de Personal</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    </div>
+</body>
+</html>

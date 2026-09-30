@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:replace="~{fragments/layout :: head('Agenda de Turnos')}"></div>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+    
+</head>
+<body>
+<div class="container-fluid">
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+
+        
+        
+        <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-3">
+            <div>
+                <h2 class="fw-bold text-dark mb-0">Agenda Diaria</h2>
+                <span class="text-muted fs-5" id="headerDateText">Seleccione un día</span>
+            </div>
+            <div>
+                <a th:href="@{/turnos/nuevo}" class="btn btn-primary fw-bold px-4 shadow-sm"><i class="bi bi-plus-lg me-2"></i>Agregar Turno</a>
+            </div>
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-4 mb-4" id="kanbanContainer">
+                
+                <h5 class="fw-bold px-4 pt-4 pb-2 mb-0" id="panelDiaTitulo">Hoy</h5>
+                
+                <div class="vet-column w-100" th:each="entry : ${turnosPorVeterinario}">
+                    <div class="vet-header bg-white position-sticky top-0 z-1 px-4 py-3 border-bottom d-flex align-items-center">
+                        <img th:src="@{'https://ui-avatars.com/api/?name=' + ${entry.key} + '&background=f7fafc&color=2d3748'}" alt="Avatar" class="rounded-circle shadow-sm me-3" width="45" height="45">
+                        <span class="fw-bold text-dark" th:text="${entry.key}">Fernando</span>
+                        <span class="ms-auto badge bg-primary rounded-pill px-3 fs-6 vet-turn-counter">0</span>
+                    </div>
+                    
+                    <div class="column-body vet-cards-wrapper py-3">
+                        <div th:each="turno : ${entry.value}" 
+                             role="button" tabindex="0" class="card event-card mb-2 shadow-sm p-3 border-start border-4 border-primary"  
+                             th:data-fecha="${#temporals.format(turno.fechaHora, 'yyyy-MM-dd')}"
+                             th:data-id="${turno.id}"
+                             onclick="abrirPanelSuperior(this.getAttribute('data-id'))"
+                             th:classappend="${turno.estado.name() == 'SOLICITADO' ? 'bg-info-subtle' : 
+                                              turno.estado.name() == 'CONFIRMADO' ? 'bg-primary-subtle' : 
+                                              turno.estado.name() == 'FINALIZADO' ? 'bg-success-subtle' : 'bg-light border'}">
+                                              
+                            <div class="d-flex justify-content-between">
+                                <div class="d-flex align-items-start gap-3">
+                                    <div class="mt-1">
+                                         <i class="bi bi-bandaid-fill fs-5" th:classappend="${turno.estado.name() == 'SOLICITADO' ? 'text-info' : turno.estado.name() == 'CONFIRMADO' ? 'text-primary' : turno.estado.name() == 'FINALIZADO' ? 'text-success' : 'text-muted'}"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="event-title mb-1" th:classappend="${turno.estado.name() == 'SOLICITADO' ? 'text-info' : turno.estado.name() == 'CONFIRMADO' ? 'text-primary' : turno.estado.name() == 'FINALIZADO' ? 'text-success' : 'text-muted'}" th:text="${turno.motivo}">Consulta</h4>
+                                        <div class="event-time mt-2">
+                                            <span th:text="${#temporals.format(turno.fechaHora, 'HH:mm')}">8:00</span> hs 
+                                            <span class="mx-2">•</span> 
+                                            <span th:text="${turno.nombreMascota}">Pepe</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="empty-column-msg text-center text-muted p-4 mt-3">
+                            <i class="bi bi-journal-x display-1 text-secondary opacity-25"></i><br>
+                            <small class="fw-bold mt-2 d-block">Sin agenda programada</small>
+                        </div>
+                    </div>
+                </div>
+            </div> 
+
+            <div class="col-md-8 bg-white p-4 rounded shadow-sm border">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold m-0" id="monthTitleText">Calendario</h5>
+                    
+                    <div>
+                        <button class="btn btn-sm btn-light bg-white border shadow-sm rounded-circle me-1" id="calPrev"><i class="bi bi-chevron-left"></i></button>
+                        <button class="btn btn-sm btn-light bg-white border shadow-sm rounded-circle" id="calNext"><i class="bi bi-chevron-right"></i></button>
+                    </div>
+                </div>
+                <div id="calendarElement"></div>
+            </div>
+
+        </div> 
+    </div>
+
+    
+    <div class="modal fade" id="turnoModal" tabindex="-1" aria-labelledby="turnoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold text-dark" id="turnoModalLabel">Detalle Consulta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+            <div class="card mb-3"><div class="card-body">
+                <h6 class="fw-bold text-muted mb-3 text-uppercase">Datos del Turno</h6>
+                <div class="d-flex align-items-center mb-2">
+                    <div class="icon-circle"><i class="bi bi-calendar3"></i></div>
+                    <span class="fw-bold fs-6 text-dark" id="drawerDate">28 Dev 2026</span>
+                </div>
+                <div class="d-flex align-items-center mb-2">
+                    <div class="icon-circle"><i class="bi bi-clock"></i></div>
+                    <span class="fw-bold fs-6 text-dark" id="drawerTime">8:00 hs</span>
+                </div>
+                <div class="d-flex align-items-center mb-3">
+                    <img id="drawerVetPfp" src="" class="rounded-circle" width="40" height="40">
+                    <span class="fw-bold fs-6 text-dark" id="drawerVet">Dra. Stone</span>
+                </div>
+                
+                <h6 class="fw-bold text-muted mt-3 mb-2 text-uppercase">Motivo Visual</h6>
+                <div class="fw-bold fs-5 text-dark mb-4" id="drawerMotivo">Consultation</div>
+                
+                <div class="d-flex justify-content-between gap-2 mt-4" id="drawerBotonesEstado" sec:authorize="hasAnyRole('ADMIN', 'VETERINARIO')">
+                </div>
+            </div>
+            
+            <div class="card"><div class="card-body">
+                <div class="d-flex justify-content-between border-bottom pb-2 mb-3">
+                    <h6 class="fw-bold text-dark mb-0 d-flex align-items-center"><span class="bg-light p-2 rounded-circle me-2 text-primary">D</span> <span id="drawerDuenio">Bridget</span></h6>
+                </div>
+                <div class="d-flex align-items-center mb-2 text-muted">
+                    <i class="bi bi-telephone text-primary me-3"></i>
+                    <span class="fw-bold" id="drawerPhone">+48 520 388 760</span>
+                </div>
+
+                <div class="d-flex justify-content-between border-bottom pb-2 mb-3 mt-4">
+                    <h6 class="fw-bold text-dark mb-0 d-flex align-items-center"><i class="bi bi-heart-pulse-fill text-danger me-2 fs-4"></i> <span id="drawerMascota">Molly</span></h6>
+                </div>
+                
+                <form th:action="@{/placeholder}" method="post" id="formDiagnostico" sec:authorize="hasAnyRole('ADMIN', 'VETERINARIO')">
+                    <label class="fw-bold text-muted mb-2">Diagnóstico / Receta Médica:</label>
+                    <textarea name="diagnostico" id="drawerDiagnostico" class="form-control" rows="3" placeholder="Aún no hay diagnóstico médico cargado..."></textarea>
+                    <button type="submit" class="btn btn-outline-primary btn-sm w-100 mt-2 fw-bold">Guardar Historia Clínica</button>
+                </form>
+            </div>
+            </div> 
+                </div> 
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    const rawTurnos = /*[[${listaTurnosJs}]]*/ []; 
+    
+    let currSelectedDate = new Date(); 
+    
+    
+    function abrirPanelSuperior(idTurno) {
+        let t = rawTurnos.find(x => x.id.toString() === idTurno.toString());
+        if(!t) return;
+        const fechaObj = new Date(t.fechaHora);
+        document.getElementById('drawerDate').innerText = fechaObj.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year:'numeric' });
+        document.getElementById('drawerTime').innerText = fechaObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute:'2-digit' }) + ' hs';
+        document.getElementById('drawerVet').innerText = t.nombreVeterinario || "Sin Profesional";
+        document.getElementById('drawerMotivo').innerText = t.motivo;
+        document.getElementById('drawerDuenio').innerText = t.nombreDuenio || "N/A";
+        document.getElementById('drawerPhone').innerText = t.telefonoDuenio || "N/A";
+        document.getElementById('drawerMascota').innerText = t.nombreMascota || "N/A";
+        document.getElementById('drawerVetPfp').src = 'https://ui-avatars.com/api/?name=' + (t.nombreVeterinario||"V") + '&background=f7fafc&color=2d3748';
+        
+        if(document.getElementById('formDiagnostico')){
+             document.getElementById('formDiagnostico').action = '/turnos/' + t.id + '/diagnostico';
+             document.getElementById('drawerDiagnostico').value = t.diagnostico || "";
+             
+             let htmlBotones = '';
+             if(t.estado === 'SOLICITADO' || t.estado === 'CONFIRMADO') {
+                 htmlBotones += `<form action="/turnos/${t.id}/estado" method="post" class="w-50"><input type="hidden" name="estado" value="FINALIZADO"><button type="submit" class="btn btn-primary w-100 fw-bold border-0">Completar</button></form>`;
+             }
+             if(t.estado !== 'CANCELADO' && t.estado !== 'FINALIZADO') {
+                 htmlBotones += `<form action="/turnos/${t.id}/estado" method="post" class="w-50"><input type="hidden" name="estado" value="CANCELADO"><button type="submit" class="btn btn-light w-100 fw-bold text-danger">Rechazar</button></form>`;
+             }
+             if(t.estado === 'FINALIZADO') {
+                 htmlBotones += `<span class="badge w-100 py-2 fs-6 rounded-pill"><i class="bi bi-check-all"></i> Consulta Finalizada</span>`;
+             }
+             if(t.estado === 'CANCELADO') {
+                 htmlBotones += `<span class="badge w-100 py-2 fs-6 rounded-pill bg-light text-muted"><i class="bi bi-x-circle"></i> Consulta Cancelada</span>`;
+             }
+             document.getElementById('drawerBotonesEstado').innerHTML = htmlBotones;
+        }
+        new bootstrap.Modal(document.getElementById('turnoModal')).show();
+    }
+
+    function cerrarPanel() {  }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        const columnasDoctores = document.querySelectorAll('.vet-column');
+        const calPrev = document.getElementById('calPrev');
+        const calNext = document.getElementById('calNext');
+        const monthTitle = document.getElementById('monthTitleText');
+        const headerDate = document.getElementById('headerDateText');
+        const panelDiaTitulo = document.getElementById('panelDiaTitulo');
+        
+        
+        const eventosFC = rawTurnos.map(function(t) {
+            let clase = 'fc-bg-cancelado';
+            if (t.estado === 'SOLICITADO') clase = 'fc-bg-solicitado';
+            if (t.estado === 'CONFIRMADO') clase = 'fc-bg-confirmado';
+            if (t.estado === 'FINALIZADO') clase = 'fc-bg-finalizado';
+            return {
+                id: t.id,
+                title: t.motivo + " (" + t.nombreMascota + ")",
+                start: t.fechaHora,
+                classNames: [clase]
+            }
+        });
+
+        
+        var calendarEl = document.getElementById('calendarElement');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            events: eventosFC,
+            headerToolbar: false, 
+            locale: 'es', 
+            firstDay: 1, 
+            height: 'auto', 
+            
+            dateClick: function(info) {
+                seleccionarFecha(info.date);
+            },
+            datesSet: function(info) {
+                
+                let title = info.view.title; 
+                monthTitle.innerText = title.charAt(0).toUpperCase() + title.slice(1);
+            }
+        });
+        calendar.render();
+
+        /* ======== LOGICA DEL DOBLE PANEL ======== */
+        function seleccionarFecha(fecha) {
+            currSelectedDate = fecha;
+
+            
+            const opcionesFecha = { day: 'numeric', month: 'long', year:'numeric' };
+            const formateado = fecha.toLocaleDateString('es-ES', opcionesFecha);
+            headerDate.innerText = formateado;
+            
+            const ahora = new Date();
+            if (fecha.toDateString() === ahora.toDateString()) {
+                panelDiaTitulo.innerText = "Hoy, " + fecha.getDate() + " " + fecha.toLocaleDateString('es-ES', {month:'short'});
+            } else {
+                panelDiaTitulo.innerText = "Día " + fecha.getDate()  + " " + fecha.toLocaleDateString('es-ES', {month:'short'});
+            }
+            
+            
+            document.querySelectorAll('.day-selected').forEach(el => el.classList.remove('day-selected'));
+            let qsIso = new Date(fecha.getTime() - (fecha.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+            let cell = document.querySelector(`.fc-day[data-date="${qsIso}"]`);
+            if(cell) { cell.classList.add('day-selected'); }
+            
+            
+            filtrarListaIzquierda(qsIso);
+        }
+        
+        function filtrarListaIzquierda(diaIso) {
+            columnasDoctores.forEach(col => {
+                let tarjetasDelDoc = col.querySelectorAll('.event-card');
+                let countActivas = 0;
+                tarjetasDelDoc.forEach(card => {
+                    if (card.getAttribute('data-fecha') === diaIso) {
+                        card.style.display = 'block'; countActivas++;
+                    } else { card.style.display = 'none'; }
+                });
+                
+                col.querySelector('.vet-turn-counter').innerText = countActivas;
+                let msgEmpty = col.querySelector('.empty-column-msg');
+                msgEmpty.style.display = countActivas === 0 ? 'block' : 'none';
+            });
+        }
+
+        
+        calPrev.addEventListener('click', () => { calendar.prev(); });
+        calNext.addEventListener('click', () => { calendar.next(); });
+        
+        
+        seleccionarFecha(new Date());
+    });
+</script>
+</body>
+</html>
