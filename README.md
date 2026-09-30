@@ -2,9 +2,11 @@
 
 ![Java](https://img.shields.io/badge/Java-25-ED8B00?style=for-the-badge&logo=java&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.4.0-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 ![Spring Security](https://img.shields.io/badge/Spring_Security-6.4.0-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white)
 ![Thymeleaf](https://img.shields.io/badge/Thymeleaf-3.1.2-005C0F?style=for-the-badge&logo=thymeleaf&logoColor=white)
+![JUnit 5](https://img.shields.io/badge/JUnit_5-25A162?style=for-the-badge&logo=junit5&logoColor=white)
+![Mockito](https://img.shields.io/badge/Mockito-7DA43D?style=for-the-badge)
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
 Un sistema de software monolítico y responsivo diseñado para centralizar la gestión de clínicas veterinarias. Permite orquestar un seguimiento preciso de historias clínicas, comunicación con los clientes (dueños) y una agenda diaria interactiva para los profesionales médicos. 
